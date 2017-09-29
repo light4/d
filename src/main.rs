@@ -16,6 +16,7 @@ use std::process::Command;
 use clap::{Arg, App};
 use regex::Regex;
 use reqwest::header::UserAgent;
+use std::thread;
 
 error_chain! {
     foreign_links {
@@ -77,8 +78,19 @@ fn main() {
                  .required(true)
                  .index(1))
         .get_matches();
-    let word = matches.value_of("WORD").unwrap();
+    let word = matches.value_of("WORD")
+                      .unwrap_or("shush")
+                      .to_owned();
     info!("{}", word);
-    say(&word);
-    search(word).unwrap();
+    let mut children = vec![];
+    let word_s = word.clone();
+    children.push(thread::spawn(move || {
+        say(&word_s);
+    }));
+    children.push(thread::spawn(move || {
+        search(&word).unwrap();
+    }));
+    for child in children {
+        let _ = child.join();
+    }
 }
