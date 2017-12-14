@@ -36,10 +36,13 @@ fn search(word: &str) -> Result<()> {
     res.read_to_string(&mut body)?;
 
     let re = Regex::new(r"(?s)/h2>.*?<ul.*?/ul>").unwrap();
-    let mat = re.find(&body).unwrap();
-    let re = Regex::new(r"(?s:<li>)(.*?)(?:</li>)").unwrap();
-    for cap in re.captures_iter(mat.as_str()) {
-        println!("{}", &cap[1]);
+    if let Some(mat) = re.find(&body) {
+        let re = Regex::new(r"(?s:<li>)(.*?)(?:</li>)").unwrap();
+        for cap in re.captures_iter(mat.as_str()) {
+            println!("{}", &cap[1]);
+        }
+    } else {
+        println!("Aha! Couldn't find {}.", word);
     }
 
     Ok(())
@@ -88,7 +91,10 @@ fn main() {
         say(&word_s);
     }));
     children.push(thread::spawn(move || {
-        search(&word).unwrap();
+        match search(&word) {
+            Ok(_) => {},
+            Err(_) => println!("Aha!"),
+        };
     }));
     for child in children {
         let _ = child.join();
