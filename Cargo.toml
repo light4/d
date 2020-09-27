@@ -1,13 +1,15 @@
 [package]
 name = "d"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["lightning1141 <lightning1141@gmail.com>"]
+edition = "2018"
 
 [dependencies]
-log = "0.4"
-log4rs = "0.8"
-env_logger = "0.5"
-clap = "2.26"
-reqwest = "0.9"
-regex = "1.0"
-failure = "0.1"
+log = "0.4.11"
+log4rs = "0.13.0"
+clap = "2.33.3"
+regex = "1.3.9"
+anyhow = "1.0.32"
+surf = "1.0.3"
+async-std = { version = "1.6.4", features = ["attributes"] }
+async-process = "1.0.0"

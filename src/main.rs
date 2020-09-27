@@ -1,29 +1,25 @@
 #[macro_use]
 extern crate log;
-extern crate clap;
-extern crate failure;
-extern crate log4rs;
-extern crate regex;
-extern crate reqwest;
 
+use anyhow::Result;
+use async_process::Command;
+use async_std;
 use clap::{App, Arg};
-use failure::Error;
 use log::LevelFilter;
 use log4rs::append::file::FileAppender;
 use log4rs::config::{Appender, Config, Root};
 use log4rs::encode::pattern::PatternEncoder;
 use regex::Regex;
-use reqwest::header::USER_AGENT;
-use std::io::Read;
-use std::thread;
+use surf;
 
-fn search(word: &str) -> Result<(), Error> {
+async fn search(word: &str) -> Result<()> {
     let user_agent = "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0";
     let url = format!("http://m.youdao.com/dict?le=eng&q={}", word);
-    let client = reqwest::Client::new();
-    let mut res = client.get(&url).header(USER_AGENT, user_agent).send()?;
-    let mut body = String::new();
-    res.read_to_string(&mut body)?;
+    let body = surf::get(&url)
+        .set_header("User-Agent", user_agent)
+        .recv_string()
+        .await
+        .unwrap();
 
     let re = Regex::new(r"(?s)/h2>.*?<ul.*?/ul>").unwrap();
     if let Some(mat) = re.find(&body) {
@@ -39,15 +35,19 @@ fn search(word: &str) -> Result<(), Error> {
 }
 
 #[cfg(target_os = "macos")]
-fn say(word: &str) {
-    use std::process::Command;
+async fn say(word: &str) -> Result<()> {
     let err = format!("Failed to say {:?}", word);
-    Command::new("say").arg(word).output().expect(&err);
+    Command::new("say").arg(word).output().await?;
+
+    Ok(())
 }
 
 #[cfg(not(target_os = "macos"))]
-fn say(word: &str) {
+async fn say(word: &str) -> Result<()> {
     println!("How to say {}?", word);
+
+    Command::new("espeak-ng").arg(word).output().await?;
+    Ok(())
 }
 
 fn init_log() {
@@ -66,7 +66,8 @@ fn init_log() {
     log4rs::init_config(config).unwrap();
 }
 
-fn main() {
+#[async_std::main]
+async fn main() -> Result<()> {
     init_log();
     let matches = App::new("A Tiny Dictionary For Myself")
         .version("0.1.0")
@@ -80,19 +81,9 @@ fn main() {
         )
         .get_matches();
     let word = matches.value_of("WORD").unwrap_or("shush").to_owned();
-    info!("{}", word);
-    let mut children = vec![];
-    let word_s = word.clone();
-    children.push(thread::spawn(move || {
-        say(&word_s);
-    }));
-    children.push(thread::spawn(move || {
-        match search(&word) {
-            Ok(_) => {}
-            Err(_) => println!("Aha!"),
-        };
-    }));
-    for child in children {
-        let _ = child.join();
-    }
+    info!("{}", &word);
+    say(&word).await?;
+    search(&word).await?;
+
+    Ok(())
 }
