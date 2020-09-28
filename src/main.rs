@@ -1,16 +1,12 @@
-#[macro_use]
-extern crate log;
+use d::telemetry::setup_log;
 
 use anyhow::Result;
 use async_process::Command;
 use async_std;
 use clap::{App, Arg};
-use log::LevelFilter;
-use log4rs::append::file::FileAppender;
-use log4rs::config::{Appender, Config, Root};
-use log4rs::encode::pattern::PatternEncoder;
 use regex::Regex;
 use surf;
+use tracing::{info, warn};
 
 async fn search(word: &str) -> Result<()> {
     let user_agent = "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0";
@@ -44,31 +40,16 @@ async fn say(word: &str) -> Result<()> {
 
 #[cfg(not(target_os = "macos"))]
 async fn say(word: &str) -> Result<()> {
-    println!("How to say {}?", word);
+    warn!("How to say {}?", word);
 
     Command::new("espeak-ng").arg(word).output().await?;
     Ok(())
 }
 
-fn init_log() {
-    let logfile = FileAppender::builder()
-        .encoder(Box::new(PatternEncoder::new(
-            "{d(%Y-%m-%d %H:%M:%S %Z)(local)} - {M} - {m}{n}",
-        )))
-        .build("/tmp/d.log")
-        .unwrap();
-
-    let config = Config::builder()
-        .appender(Appender::builder().build("logfile", Box::new(logfile)))
-        .build(Root::builder().appender("logfile").build(LevelFilter::Info))
-        .unwrap();
-
-    log4rs::init_config(config).unwrap();
-}
-
 #[async_std::main]
 async fn main() -> Result<()> {
-    init_log();
+    let _guard = setup_log("d", "info");
+
     let matches = App::new("A Tiny Dictionary For Myself")
         .version("0.1.0")
         .author("Light Ning <lightning1141@gmail.com>")
