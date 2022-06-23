@@ -2,17 +2,15 @@ use d::telemetry::setup_log;
 
 use anyhow::Result;
 use async_process::Command;
-use async_std;
 use clap::{App, Arg};
 use regex::Regex;
-use surf;
 use tracing::{info, warn};
 
 async fn search(word: &str) -> Result<()> {
     let user_agent = "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0";
     let url = format!("http://m.youdao.com/dict?le=eng&q={}", word);
     let body = surf::get(&url)
-        .set_header("User-Agent", user_agent)
+        .header("User-Agent", user_agent)
         .recv_string()
         .await
         .unwrap();
