@@ -1,17 +1,17 @@
 [package]
 name = "d"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["lightning1141 <lightning1141@gmail.com>"]
-edition = "2018"
+edition = "2021"
+description = "A Tiny Dictionary"
 
 [dependencies]
-clap = "3.2.6"
-regex = "1.5.6"
-anyhow = "1.0.58"
-surf = "2.3.2"
-async-std = { version = "1.12.0", features = ["attributes"] }
-async-process = "1.4.0"
-tracing = "0.1.35"
-tracing-appender = "0.2.2"
-tracing-subscriber = { version = "0.3.11", features = ["env-filter"] }
-directories = "4.0.1"
+clap = { version = "4.0", features = ["derive"] }
+regex = "1.6"
+anyhow = "1.0"
+surf = "2.3"
+async-std = { version = "1.12", features = ["attributes"] }
+tracing = "0.1"
+tracing-appender = "0.2"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+directories = "4.0"

@@ -1,10 +1,17 @@
-use d::telemetry::setup_log;
+use std::{process::Command, thread};
 
 use anyhow::Result;
-use async_process::Command;
-use clap::{App, Arg};
+use clap::Parser;
+use d::telemetry::setup_log;
 use regex::Regex;
-use tracing::{info, warn};
+use tracing::{error, info, warn};
+
+#[derive(Parser)]
+#[command(author, version, about, long_about = None)]
+struct Cli {
+    /// word to query
+    word: String,
+}
 
 async fn search(word: &str) -> Result<()> {
     let user_agent = "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0";
@@ -29,18 +36,18 @@ async fn search(word: &str) -> Result<()> {
 }
 
 #[cfg(target_os = "macos")]
-async fn say(word: &str) -> Result<()> {
+fn say(word: &str) -> Result<()> {
     let err = format!("Failed to say {:?}", word);
-    Command::new("say").arg(word).output().await?;
+    Command::new("say").arg(word).output()?;
 
     Ok(())
 }
 
 #[cfg(not(target_os = "macos"))]
-async fn say(word: &str) -> Result<()> {
+fn say(word: &str) -> Result<()> {
     warn!("How to say {}?", word);
 
-    Command::new("espeak-ng").arg(word).output().await?;
+    Command::new("espeak-ng").arg(word).output()?;
     Ok(())
 }
 
@@ -48,21 +55,15 @@ async fn say(word: &str) -> Result<()> {
 async fn main() -> Result<()> {
     let _guard = setup_log("d", "info");
 
-    let matches = App::new("A Tiny Dictionary For Myself")
-        .version("0.1.0")
-        .author("Light Ning <lightning1141@gmail.com>")
-        .about("A Tiny Dictionary For Myself")
-        .arg(
-            Arg::with_name("WORD")
-                .help("Word to search")
-                .required(true)
-                .index(1),
-        )
-        .get_matches();
-    let word = matches.value_of("WORD").unwrap_or("shush").to_owned();
+    let cli = Cli::parse();
+    let word = cli.word;
     info!("{}", &word);
-    say(&word).await?;
+    let word_clone = word.clone();
+    let handler = thread::spawn(move || {
+        say(&word_clone).unwrap_or(error!("cannot say word: {}", &word_clone));
+    });
     search(&word).await?;
+    handler.join().unwrap();
 
     Ok(())
 }

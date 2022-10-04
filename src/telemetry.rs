@@ -1,5 +1,4 @@
 use directories::ProjectDirs;
-
 use tracing::subscriber::set_global_default;
 use tracing_appender::non_blocking::WorkerGuard;
 use tracing_subscriber::EnvFilter;
@@ -9,9 +8,9 @@ pub fn setup_log<S: AsRef<str>>(name: S, env_filter: S) -> WorkerGuard {
         EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new(env_filter));
 
     let proj_dir = ProjectDirs::from(
-        "io",          /*qualifier*/
-        "i01",         /*organization*/
-        name.as_ref(), /*application*/
+        "io",          // qualifier
+        "i01",         // organization
+        name.as_ref(), // application
     )
     .expect("Failed to set project directory");
 
