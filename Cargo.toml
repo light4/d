@@ -6,12 +6,34 @@ edition = "2021"
 description = "A Tiny Dictionary"
 
 [dependencies]
-clap = { version = "4.0", features = ["derive"] }
-regex = "1.6"
 anyhow = "1.0"
-surf = "2.3"
-async-std = { version = "1.12", features = ["attributes"] }
+clap = { version = "4.0", features = ["derive"] }
+directories = "4.0"
+regex = "1.7"
+reqwest = { version = "0.11", default-features = false, features = [
+    "rustls-tls",
+] }
+rodio = { version = "0.16", default-features = false, features = [
+    "symphonia-mp3",
+] }
+tokio = { version = "1.22", features = [
+    "fs",
+    "io-util",
+    "io-std",
+    "macros",
+    "net",
+    "process",
+    "rt",
+    "rt-multi-thread",
+    "signal",
+    "time",
+] }
 tracing = "0.1"
 tracing-appender = "0.2"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
-directories = "4.0"
+
+[profile.release]
+lto = "thin"
+codegen-units = 4
+strip = "debuginfo"
+# split-debuginfo = 'packed'    # https://doc.rust-lang.org/rustc/codegen-options/index.html#split-debuginfo
