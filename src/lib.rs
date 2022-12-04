@@ -23,8 +23,8 @@ fn build_client() -> Result<reqwest::Client> {
 
 #[derive(Debug, Default, Clone, Copy)]
 pub enum Pron {
-    #[default]
     UK,
+    #[default]
     US,
     JAP,
 }
