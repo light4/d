@@ -9,7 +9,7 @@ struct Options {
     /// word to query
     word: String,
     /// word to query
-    pron: Option<d::audio::Pron>,
+    pron: Option<d::Pron>,
 }
 
 #[tokio::main]
@@ -20,12 +20,11 @@ async fn main() -> Result<()> {
     let word = opt.word;
     info!("{}", &word);
     let word_clone = word.clone();
-    opt.pron
-        .unwrap_or_default()
-        .say(&word_clone)
+    let pron = opt.pron.unwrap_or_default();
+    pron.search(&word).await?;
+    pron.say(&word_clone)
         .await
         .unwrap_or(error!("cannot say word: {}", &word_clone));
-    d::search(&word).await?;
 
     Ok(())
 }
