@@ -77,9 +77,10 @@ impl Pron {
     }
 
     pub async fn search(&self, word: &str) -> Result<()> {
-        let url = self.search_url(word);
+        let search_url = self.search_url(word);
+        info!("search_url={search_url}");
         let client = build_client()?;
-        let body = client.get(url).send().await?.text().await?;
+        let body = client.get(search_url).send().await?.text().await?;
 
         let re = Regex::new(r"(?s)/h2>.*?<ul.*?/ul>")?;
         if let Some(mat) = re.find(&body) {
