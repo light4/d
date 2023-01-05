@@ -60,10 +60,10 @@ impl Pron {
     }
 
     pub async fn say(&self, word: &str) -> Result<()> {
-        let api_url = self.audio_url(word);
-        info!(api_url);
+        let audio_url = self.audio_url(word);
+        info!(audio_url);
         let client = reqwest::Client::builder().user_agent(USER_AGENT).build()?;
-        let response = client.get(api_url).send().await?.bytes().await?;
+        let response = client.get(audio_url).send().await?.bytes().await?;
         info!("got response");
 
         task::spawn_blocking(move || {
@@ -88,7 +88,7 @@ impl Pron {
                 println!("{}", &cap[1]);
             }
         } else {
-            println!("Aha! Couldn't find {word}.");
+            eprintln!("Aha! Couldn't find {word}.");
         }
 
         Ok(())

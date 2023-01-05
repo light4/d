@@ -14,11 +14,11 @@ struct Options {
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let _guard = setup_log("d", "info");
+    let (_file_guard, _stdout_guard) = setup_log(env!("CARGO_PKG_NAME"));
 
     let opt = Options::parse();
     let word = opt.word;
-    info!("{}", &word);
+    info!("searching: {}", &word);
     let word_clone = word.clone();
     let pron = opt.pron.unwrap_or_default();
     pron.search(&word).await?;
