@@ -22,9 +22,9 @@ async fn main() -> Result<()> {
     let word_clone = word.clone();
     let pron = opt.pron.unwrap_or_default();
     pron.search(&word).await?;
-    pron.say(&word_clone)
-        .await
-        .unwrap_or(error!("cannot say word: {}", &word_clone));
+    if let Err(e) = pron.say(&word_clone).await {
+        error!("cannot say word {}: {}", &word_clone, e);
+    }
 
     Ok(())
 }

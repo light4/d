@@ -7,7 +7,7 @@ use anyhow::{bail, Result};
 use regex::Regex;
 use reqwest::Url;
 use tokio::task;
-use tracing::info;
+use tracing::{error, info};
 
 pub mod audio;
 pub mod telemetry;
@@ -88,7 +88,9 @@ impl Pron {
                 println!("{}", &cap[1]);
             }
         } else {
-            eprintln!("Aha! Couldn't find {word}.");
+            let msg = format!("Aha! Couldn't find {word}.");
+            error!("{msg}");
+            bail!(msg);
         }
 
         Ok(())
