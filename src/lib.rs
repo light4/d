@@ -8,6 +8,7 @@ use regex::Regex;
 use reqwest::Url;
 use tokio::task;
 use tracing::{error, info};
+use whatlang::{detect, Lang};
 
 pub mod audio;
 pub mod telemetry;
@@ -39,6 +40,15 @@ impl FromStr for Pron {
             "jap" => Ok(Self::JAP),
             _ => bail!("parse pron option error"),
         }
+    }
+}
+
+pub fn get_pron_from(word: &str) -> Pron {
+    let info = detect(word).unwrap();
+    match info.lang() {
+        Lang::Eng => Pron::US,
+        Lang::Jpn => Pron::JAP,
+        _ => Pron::US,
     }
 }
 

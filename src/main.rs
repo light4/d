@@ -1,6 +1,6 @@
 use anyhow::Result;
 use clap::Parser;
-use d::telemetry::setup_log;
+use d::{get_pron_from, telemetry::setup_log, Pron};
 use tracing::{error, info};
 
 #[derive(Parser)]
@@ -9,7 +9,7 @@ struct Options {
     /// word to query
     word: String,
     /// word to query
-    pron: Option<d::Pron>,
+    pron: Option<Pron>,
 }
 
 #[tokio::main]
@@ -20,7 +20,8 @@ async fn main() -> Result<()> {
     let word = opt.word;
     info!("searching: {}", &word);
     let word_clone = word.clone();
-    let pron = opt.pron.unwrap_or_default();
+    dbg!(get_pron_from(&word));
+    let pron = opt.pron.unwrap_or_else(|| get_pron_from(&word));
     pron.search(&word).await?;
     if let Err(e) = pron.say(&word_clone).await {
         error!("cannot say word {}: {}", &word_clone, e);

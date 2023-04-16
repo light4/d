@@ -1,22 +1,22 @@
 [package]
 name = "d"
-version = "0.2.2"
-authors = ["lightning1141 <lightning1141@gmail.com>"]
+version = "0.2.3"
+authors = ["Light Ning <root@i01.io>"]
 edition = "2021"
 description = "A Tiny Dictionary"
 
 [dependencies]
 anyhow = "1.0"
-clap = { version = "4.1", features = ["derive"] }
-directories = "4.0"
+clap = { version = "4.2", features = ["derive"] }
+directories = "5.0"
 regex = "1.7"
 reqwest = { version = "0.11", default-features = false, features = [
     "rustls-tls",
 ] }
-rodio = { version = "0.16", default-features = false, features = [
+rodio = { version = "0.17", default-features = false, features = [
     "symphonia-mp3",
 ] }
-tokio = { version = "1.24", features = [
+tokio = { version = "1.27", features = [
     "fs",
     "io-util",
     "io-std",
@@ -31,6 +31,7 @@ tokio = { version = "1.24", features = [
 tracing = "0.1"
 tracing-appender = "0.2"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+whatlang = "0.16"
 
 [profile.release]
 lto = "thin"
